@@ -22,8 +22,6 @@ clf = xgb.XGBRegressor(max_depth=10,
                            nthread=8,
                            subsample=0.80,
                            colsample_bytree=0.80,
-                            objective='multi:softprob',
-                            num_class=3,
                            seed=4242)
 
 clf.fit(trn_x, trn_y, eval_set=[(val_x, val_y)], verbose=True,
