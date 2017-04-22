@@ -21,9 +21,9 @@ def obtainNParray(data,hasY):
     for idKey in data['listing_id'].keys():
         arrX[ind, 0] = data['latitude'][idKey]
         arrX[ind, 1] = data['longitude'][idKey]
-        arrX[ind, 2] = data['longitude'][idKey]
-        arrX[ind, 3] = data['longitude'][idKey]
-        arrX[ind, 4] = data['longitude'][idKey]
+        arrX[ind, 2] = data['price'][idKey]
+        arrX[ind, 3] = data['bedrooms'][idKey]
+        arrX[ind, 4] = data['bathrooms'][idKey]
         arrListID.append(data['listing_id'][idKey])
         ind = ind+1
     if hasY:
