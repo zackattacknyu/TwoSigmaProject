@@ -13,10 +13,12 @@ from keras.layers.convolutional import Convolution2D, MaxPooling2D, ZeroPadding2
 from keras.optimizers import SGD
 
 folder = 'dataSets/'
-trainX = np.load(folder + 'trainXarray.npy')
+trainX = np.load(folder + 'trainXarray4.npy')
 trainY = np.load(folder + 'trainYarray.npy')
-testX = np.load(folder + 'testXarray.npy')
+testX = np.load(folder + 'testXarray4.npy')
 testID = np.load(folder + 'testIDarray.npy')
+
+numFeatures = trainX.shape[1]
 
 def getBinaryArray(array,num):
     return (array == num).astype('int')
@@ -50,20 +52,21 @@ def getPrediction(trainY,validationY):
     return clf.predict(testX,output_margin=True)
 
 
-inputImg = Input(shape=(5,))
-layer1 = Dense(100, init='normal', activation='relu')(inputImg)
-layer2 = Dense(20, init='normal', activation='sigmoid')(layer1)
-outputLayer = Dense(3, init='normal', activation='softmax')(layer2)
-noduleModel = Model(input=inputImg, output=outputLayer)
-noduleModel.compile(loss='categorical_crossentropy', optimizer='sgd', metrics=['accuracy'])
-print("Now fitting Neural Network")
-noduleModel.fit(trn_xA, trn_yA, batch_size=5000, nb_epoch=100,
-                  verbose=1, validation_data=(val_xA, val_yA))
-testPrediction = noduleModel.predict(testX)
-
 pred1 = getPrediction(trn_y1,val_y1)
 pred2 = getPrediction(trn_y2,val_y2)
 pred3 = getPrediction(trn_y3,val_y3)
+
+def getNNPrediction():
+    inputImg = Input(shape=(numFeatures,))
+    layer1 = Dense(100, init='normal', activation='relu')(inputImg)
+    layer2 = Dense(20, init='normal', activation='sigmoid')(layer1)
+    outputLayer = Dense(3, init='normal', activation='softmax')(layer2)
+    noduleModel = Model(input=inputImg, output=outputLayer)
+    noduleModel.compile(loss='categorical_crossentropy', optimizer='sgd', metrics=['accuracy'])
+    print("Now fitting Neural Network")
+    noduleModel.fit(trn_xA, trn_yA, batch_size=5000, nb_epoch=100,
+                      verbose=1, validation_data=(val_xA, val_yA))
+    return noduleModel.predict(testX)
 
 def obtainPred(origPred):
     if(origPred<0):
@@ -93,6 +96,7 @@ with open(fileName, 'w') as csvfile:
         curPred2A = pred2[ind]
         curPred3A = pred3[ind]
 
+        testPrediction = getNNPrediction()
         curPred1B = testPrediction[ind, 0]
         curPred2B = testPrediction[ind, 1]
         curPred3B = testPrediction[ind, 2]
