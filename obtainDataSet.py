@@ -1,6 +1,8 @@
 import json
 import numpy as np
 import time
+import math
+from sklearn.decomposition import PCA
 
 fileNtest = 'test.json'
 fileNtrain = 'train.json'
@@ -51,7 +53,8 @@ def getBinaryVectorOfApartmentFeatures(dataArray,key1):
     outputVector = np.zeros((1, numAptFeatures))
     for featureName in dataArray['features'][key1]:
         numericIndex = allAptFeatures[featureName]
-        outputVector[0,numericIndex]=1
+        if not math.isnan(numericIndex) and not math.isinf(numericIndex):
+            outputVector[0,numericIndex]=1
 
 print("now obtaining manager dictionary")
 #there are 3481 unique managers of ~50,000 training example
@@ -88,8 +91,9 @@ def obtainArrays(data,hasY):
             ind = ind + 1
     return arrY,arrListID
 
-numFeatures=9+numAptFeatures
-def obtainXarray(data):
+nComps = 10
+numFeatures=9+nComps
+def obtainXarray(data,binaryArray):
     ind = 0
     numPts = len(data['listing_id'].keys())
     arrX = np.zeros((numPts, numFeatures))
@@ -104,19 +108,41 @@ def obtainXarray(data):
         arrX[ind, 6] = managerDictionary[data['manager_id'][idKey]] #manager id (1-3481) is feature
         arrX[ind, 7] = buildingDictionary[data['building_id'][idKey]] #building id (1-7585) is feature
         arrX[ind, 8] = convertToTimeSinceEpoch(data['created'][idKey])
-        arrX[ind, 9:numFeatures] = getBinaryVectorOfApartmentFeatures(data,idKey)
+        arrX[ind, 9:numFeatures] = binaryArray[ind,:]
+        ind = ind+1
+    return arrX
+
+def obtainBinaryAptFeatureArray(data):
+    ind = 0
+    numPts = len(data['listing_id'].keys())
+    arrX = np.zeros((numPts, numFeatures))
+    for idKey in data['listing_id'].keys():
+        print("Obtaining apt features for apt " + str(ind) + " of " + str(numPts))
+        arrX[ind, 0:numAptFeatures] = getBinaryVectorOfApartmentFeatures(data,idKey)
         ind = ind+1
     return arrX
 
 trainY,trainIDs = obtainArrays(dataTrain,True)
 testY,testIDs = obtainArrays(dataTest,False)
-trainX = obtainXarray(dataTrain)
-testX = obtainXarray(dataTest)
+
+numTrain = len(dataTrain['listing_id'].keys())
+numTest = len(dataTest['listing_id'].keys())
+numTotal = numTrain + numTest
+
+binaryArrayTrain = obtainBinaryAptFeatureArray(dataTrain)
+binaryArrayTest = obtainBinaryAptFeatureArray(dataTest)
+binaryArrayTotal = np.concatenate((binaryArrayTrain,binaryArrayTest),axis=0)
+print("Now doing PCA on binary Vectors")
+pca = PCA(n_components=nComps)
+newBinaryArray = pca.fit_transform(binaryArrayTotal)
+newBinaryTrain = binaryArrayTotal[0:numTrain]
+newBinaryTest = binaryArrayTotal[numTrain:numTotal]
+
+trainX = obtainXarray(dataTrain,newBinaryTrain)
+testX = obtainXarray(dataTest,newBinaryTest)
 
 print("Number of Apt Features in Vector: " + str(numAptFeatures))
 
-numTrain = trainX.shape[0]
-numTotal = numTrain+testX.shape[0]
 allX = np.zeros((numTotal,numFeatures))
 allX[0:numTrain,:] = trainX
 allX[numTrain:numTotal,:]=testX
