@@ -13,9 +13,9 @@ from keras.layers.convolutional import Convolution2D, MaxPooling2D, ZeroPadding2
 from keras.optimizers import SGD
 
 folder = 'dataSets/'
-trainX = np.load(folder + 'trainXarray4.npy')
+trainX = np.load(folder + 'trainXarray4_5encoded.npy')
 trainY = np.load(folder + 'trainYarray.npy')
-testX = np.load(folder + 'testXarray4.npy')
+testX = np.load(folder + 'testXarray4_5encoded.npy')
 testID = np.load(folder + 'testIDarray.npy')
 
 numFeatures = trainX.shape[1]
@@ -81,7 +81,7 @@ def ensembleNumbers(predA,normA,predB,normB):
     pred = 0.5*predA/normA + 0.5*predB/normB
     return obtainPred(pred)
 
-
+testPrediction = getNNPrediction()
 ts = time.time()
 st = datetime.datetime.fromtimestamp(ts).strftime('%Y_%m_%d__%H_%M_%S')
 fileName = 'submissions/twoSigmaSubmission_' + st + '.csv'
@@ -96,7 +96,6 @@ with open(fileName, 'w') as csvfile:
         curPred2A = pred2[ind]
         curPred3A = pred3[ind]
 
-        testPrediction = getNNPrediction()
         curPred1B = testPrediction[ind, 0]
         curPred2B = testPrediction[ind, 1]
         curPred3B = testPrediction[ind, 2]
