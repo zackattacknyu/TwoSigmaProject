@@ -144,7 +144,7 @@ binaryArrayTest = obtainBinaryAptFeatureArray(dataTest)
 binaryArrayTotal = np.concatenate((binaryArrayTrain,binaryArrayTest),axis=0)
 
 print("Now doing AutoEncoding")
-encoding_dim=5
+encoding_dim=30
 inputImg = Input(shape=(numAptFeatures,))
 layer1 = Dense(encoding_dim, init='normal', activation='relu')(inputImg)
 outputLayer = Dense(numAptFeatures, init='normal', activation='sigmoid')(layer1)
@@ -171,7 +171,7 @@ allXNormed = allXZeroMin/allXFeatureRange
 trainXNormed = allXNormed[0:numTrain]
 testXNormed = allXNormed[numTrain:numTotal]
 
-np.save('dataSets/trainXarray4_5encoded.npy',trainXNormed)
+np.save('dataSets/trainXarray4_30encoded.npy',trainXNormed)
 np.save('dataSets/trainYarray.npy',trainY)
-np.save('dataSets/testXarray4_5encoded.npy',testXNormed)
+np.save('dataSets/testXarray4_30encoded.npy',testXNormed)
 np.save('dataSets/testIDarray.npy',testIDs)

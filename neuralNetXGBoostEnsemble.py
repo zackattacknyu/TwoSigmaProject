@@ -13,9 +13,9 @@ from keras.layers.convolutional import Convolution2D, MaxPooling2D, ZeroPadding2
 from keras.optimizers import SGD
 
 folder = 'dataSets/'
-trainX = np.load(folder + 'trainXarray4_5encoded.npy')
+trainX = np.load(folder + 'trainXarray4_30encoded.npy')
 trainY = np.load(folder + 'trainYarray.npy')
-testX = np.load(folder + 'testXarray4_5encoded.npy')
+testX = np.load(folder + 'testXarray4_30encoded.npy')
 testID = np.load(folder + 'testIDarray.npy')
 
 numFeatures = trainX.shape[1]
